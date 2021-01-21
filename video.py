@@ -1,6 +1,6 @@
 import pafy
 import pymongo
-from lib.video import gather_meta, gather_stats
+from helpers.video import gather_meta, gather_stats
 import api_key
 import sys
 
