@@ -6,7 +6,7 @@ from time import time
 
 def gather_meta(channel):
     channel["_id"] = channel["id"]
-    channel["timestamp"] = time()
+    channel["timestamp"] = round(time())
     del channel["id"]
     del channel["kind"]
     del channel["etag"]
@@ -16,8 +16,41 @@ def gather_meta(channel):
 def gather_stats(channel):
     statistics = channel["statistics"]
     del channel["statistics"]
-    statistics["timestamp"] = time()
+    statistics["timestamp"] = round(time())
     return statistics
+
+
+def gather_video_meta(video, channel):
+    dictionary = {
+        "_id": video["id"],
+        "author": video["snippet"]["channelTitle"],
+        "category": video["snippet"]["categoryId"],
+        "description": video["snippet"]["description"],
+        # "keywords": video["brandingSettings"]["channel"][],
+        # "length": video.length,
+        "published": video["snippet"]["publishedAt"],
+        "title": video["snippet"]["title"],
+        "username": channel["snippet"]["customUrl"],
+        "timestamp": round(time()),
+        "channel_id": video["snippet"]["channelId"],
+
+    }
+    return dictionary
+
+
+def gather_video_stats(video):
+    stats = video["statistics"]
+    dictionary = {
+        "likes": stats["likeCount"],
+        "dislikes": stats["dislikeCount"],
+        # "rating": video.rating,
+        "viewcount": stats["viewCount"],
+        "comments": stats["commentCount"],
+        "favorites": stats["favoriteCount"],
+        "timestamp": round(time())
+    }
+    return dictionary
+
 
 # This is a modified version of this: https://github.com/python-engineer/youtube-analyzer
 class ChannelManager:
@@ -51,28 +84,25 @@ class ChannelManager:
         print('get video data...')
         channel_videos, channel_playlists = self._get_channel_content()
 
-        parts = ["snippet", "statistics", "contentDetails", "topicDetails"]
+        parts = ["snippet", "statistics"]
+        videos = []
         for video_id in tqdm(channel_videos):
-            for part in parts:
-                data = self._get_single_video_data(video_id, part)
-                channel_videos[video_id].update(data)
+            videos.append(self._get_single_video_data(video_id, parts))
+            # for part in parts:
+            #     data = self._get_single_video_data(video_id, part)
+            #     channel_videos[video_id].update(data)
+        self.video_data = videos
+        return videos
 
-        self.video_data = channel_videos
-        return channel_videos
-
-    def _get_single_video_data(self, video_id, part):
-        """
-        Extract further information for a single video
-        parts can be: 'snippet', 'statistics', 'contentDetails', 'topicDetails'
-        """
-
-        url = f"https://www.googleapis.com/youtube/v3/videos?part={part}&id={video_id}&key={self.api_key}"
+    def _get_single_video_data(self, video_id, parts):
+        parts = ",".join(parts)
+        url = f"https://www.googleapis.com/youtube/v3/videos?part={parts}&id={video_id}&key={self.api_key}"
         json_url = requests.get(url)
         data = json.loads(json_url.text)
         try:
-            data = data['items'][0][part]
+            data = data['items'][0]
         except KeyError as e:
-            print(f'Error! Could not get {part} part of data: \n{data}')
+            print(f'Error! Could not get video data: \n{data}')
             data = dict()
         return data
 
