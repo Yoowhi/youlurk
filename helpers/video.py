@@ -1,4 +1,4 @@
-import time
+from time import time
 
 
 def gather_meta(video):
@@ -12,7 +12,7 @@ def gather_meta(video):
         "published": video.published,
         "title": video.title,
         "username": video.username,
-        "timestamp": time.time()
+        "timestamp": time()
     }
     return dictionary
 
@@ -23,6 +23,6 @@ def gather_stats(video):
         "dislikes": video.dislikes,
         "rating": video.rating,
         "viewcount": video.viewcount,
-        "timestamp": time.time()
+        "timestamp": time()
     }
     return dictionary

@@ -10,7 +10,7 @@ connection = pymongo.MongoClient()
 youtube = connection.youtube
 videos = youtube.videos
 
-# Pufy init
+# Pafy init
 pafy.set_api_key(api_key.key)
 url = sys.argv[1]
 if url is (None or ""):
@@ -19,6 +19,6 @@ video = pafy.new(url)
 
 # Gather time!
 document = gather_meta(video)
-videos.update_one({"_id": video.videoid}, {"$set": document}, True)
 stats = gather_stats(video)
+videos.update_one({"_id": video.videoid}, {"$set": document}, True)
 videos.update_one({"_id": video.videoid}, {"$push": {"stats": stats}})
