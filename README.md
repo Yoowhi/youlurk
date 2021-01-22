@@ -1,5 +1,5 @@
 # YouLurk
-Python scripts for gathering YouTube statistics. All data will store in local MongoDB server<br>
+Python scripts for gathering YouTube statistics. All data will be stored in local MongoDB server<br>
 Requires `pyfy` and `pymongo` packages
 
 ## video.py
